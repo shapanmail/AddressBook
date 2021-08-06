@@ -1,0 +1,207 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Address book api
+paths:
+  /addressbooks:
+    post:
+      operationId: createAddressBook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressBook'
+        required: true
+      responses:
+        "400":
+          description: Invalid addressbook name.
+        "409":
+          description: Addressbook with same name already exist.
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AddressBook'
+  /addressbooks/{addressBookName}/contacts:
+    get:
+      operationId: getAllContactsFromAddressBook
+      parameters:
+        - name: addressBookName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "404":
+          description: Addressbook not found/contact not found.
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+    post:
+      operationId: addContactToAddressBook
+      parameters:
+        - name: addressBookName
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+        required: true
+      responses:
+        "400":
+          description: Invalid contact body.
+        "404":
+          description: Addressbook not found.
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Contact'
+  /contacts:
+    get:
+      tags:
+        - address-book-controller
+      operationId: retrieveUniqueContactsFromAllAddressBooks
+      parameters:
+        - name: unique
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+  /contacts/findByPhone:
+    get:
+      tags:
+        - address-book-controller
+      operationId: findByPhone
+      parameters:
+        - name: phone
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+  /contacts/findByName:
+    get:
+      tags:
+        - address-book-controller
+      operationId: findByFirstOrLastName
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+  /addressbooks/{addressBookName}:
+    delete:
+      tags:
+        - address-book-controller
+      operationId: deleteAddressBook
+      parameters:
+        - name: addressBookName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /addressbooks/{addressBookName}/contacts/{contactId}:
+    delete:
+      tags:
+        - address-book-controller
+      operationId: removeContactFromAddressBook
+      parameters:
+        - name: addressBookName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Contact'
+components:
+  schemas:
+    AddressBook:
+      type: object
+      properties:
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+        name:
+          type: string
+    Contact:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/Name'
+        phoneNumber:
+          $ref: '#/components/schemas/PhoneNumber'
+        id:
+          type: string
+    Name:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+    PhoneNumber:
+      type: object
+      properties:
+        number:
+          type: string
