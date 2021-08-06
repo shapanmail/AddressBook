@@ -44,6 +44,12 @@ so that I can keep track of my customer contacts.
     
 ```
 
+### Notes and Assumption ###
+- Authentication and authorization is not considered.
+- Used inmemory map(no repository layer), did not use any db/file or other persistent storage.
+- Bean validation is not implemented.
+
+
 
 
 
